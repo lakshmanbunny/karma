@@ -1,22 +1,22 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
 import os
-import numpy as np
 from app.fraud_detector import FraudDetector
 
-app = FastAPI()
+app = FastAPI(title="Karma Fraud Detector API")
 
 class Activity(BaseModel):
     activity_id: str
     type: str
     from_user: str
     timestamp: str
-    source: str = None
-    post_id: str = None
-    content: str = None
+    to_user: Optional[str] = None
+    source: Optional[str] = None
+    post_id: Optional[str] = None
+    content: Optional[str] = None
 
 class KarmaLog(BaseModel):
     user_id: str
@@ -28,35 +28,68 @@ class FraudResponse(BaseModel):
     suspicious_activities: List[Dict[str, Any]]
     status: str
 
-# Initialize FraudDetector
+# Global variables
+config = {}
 fraud_detector = None
-try:
-    with open('app/config.json', 'r') as f:
-        config = json.load(f)
-    fraud_detector = FraudDetector(
-        model_path='app/models/model.pkl',
-        vectorizer_path='app/models/vectorizer.pkl',
-        config_path='app/config.json',
-        feature_names_path='app/models/feature_names.pkl'
-    )
-except Exception as e:
-    print(f"Error initializing FraudDetector: {e}")
+
+# Initialize on startup
+@app.on_event("startup")
+async def startup_event():
+    global config, fraud_detector
+    
+    # Make sure model directory exists
+    os.makedirs('app/models', exist_ok=True)
+    
+    # Load configuration
+    config_path = 'app/config.json'
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        config = {"fraud_threshold": 0.7}  # Default config
+    
+    # Check if model files exist
+    model_path = 'app/models/model.pkl'
+    feature_names_path = 'app/models/feature_names.pkl'
+    
+    if not os.path.exists(model_path) or not os.path.exists(feature_names_path):
+        print("Warning: Model files not found. The API will start but analyze endpoint will fail.")
+        return
+    
+    # Initialize fraud detector
+    try:
+        fraud_detector = FraudDetector(
+            model_path=model_path,
+            config_path=config_path,
+            feature_names_path=feature_names_path
+        )
+        print("Fraud detector initialized successfully")
+    except Exception as e:
+        print(f"Error initializing fraud detector: {e}")
 
 @app.post("/analyze", response_model=FraudResponse)
 async def analyze_karma(log: KarmaLog):
+    """
+    Analyze a karma log for fraudulent activities
+    """
+    global fraud_detector, config
+    
     if fraud_detector is None:
-        raise HTTPException(status_code=500, detail="Fraud detector not initialized")
+        raise HTTPException(status_code=500, 
+                           detail="Fraud detector not initialized. Make sure model files exist in app/models/")
 
-    # Convert the log to a dictionary
+    # Convert the Pydantic model to a dictionary
     log_dict = log.dict()
 
-    # Add the user_id as to_user for each activity
+    # Add the user_id as to_user for each activity if not already present
     for activity in log_dict["karma_log"]:
-        activity["to_user"] = log_dict["user_id"]
+        if not activity.get("to_user"):
+            activity["to_user"] = log_dict["user_id"]
 
     try:
         fraud_score, suspicious_activities = fraud_detector.detect_fraud(log_dict)
-        status = "flagged" if fraud_score > config["fraud_threshold"] else "clean"
+        status = "flagged" if fraud_score > config.get("fraud_threshold", 0.7) else "clean"
 
         return {
             "user_id": log.user_id,
@@ -69,8 +102,15 @@ async def analyze_karma(log: KarmaLog):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok"}
+    """Health check endpoint"""
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 @app.get("/version")
 async def version():
-    return {"version": "1.0"}
+    """Get the API version"""
+    global config
+    return {
+        "version": "1.0", 
+        "model_version": config.get("model_version", "unknown"),
+        "config_version": config.get("config_version", "unknown")
+    }

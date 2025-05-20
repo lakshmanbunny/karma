@@ -1,5 +1,5 @@
 {
-    "fraud_threshold": 0.7,
+    "fraud_threshold": 0.5,
     "field_weights": {
         "upvote_received": 0.5,
         "comment": 0.3,
@@ -9,11 +9,37 @@
         "verified_user_1",
         "verified_user_2"
     ],
-    "model_version": "1.0",
+    "model_version": "1.0.20250520",
     "config_version": "1.0",
     "junk_comments": [
-        "Nice post bro!", "🔥🔥🔥", "Cool!", "Wow!", "Sub 4 sub?", "Check mine!", "Good", "Awesome bro",
-        "Follow me!", "Like my page", "Great stuff", "Amazing!", "Keep it up", "Nice one",
-        "Thanks", "Appreciate it", "Well done", "Nice work", "Good job"
-    ]
+        "Nice post bro!",
+        "\u00f0\u0178\u201d\u00a5\u00f0\u0178\u201d\u00a5\u00f0\u0178\u201d\u00a5",
+        "Cool!",
+        "Wow!",
+        "Sub 4 sub?",
+        "Check mine!",
+        "Good",
+        "Awesome bro",
+        "Follow me!",
+        "Like my page",
+        "Great post",
+        "Amazing!",
+        "Keep it up",
+        "Nice one",
+        "Thanks",
+        "Appreciate it",
+        "Well done",
+        "Nice work",
+        "Good job",
+        "."
+    ],
+    "training_timestamp": "2025-05-20T15:06:39.280676",
+    "best_model": "LightGBM",
+    "metrics": {
+        "LightGBM": {
+            "accuracy": 0.7583333333333333,
+            "f1_score": 0.4444444444444444,
+            "roc_auc": 0.6698761764551239
+        }
+    }
 }

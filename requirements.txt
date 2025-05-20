@@ -5,3 +5,6 @@ pydantic
 pandas
 faker
 numpy
+xgboost
+lightgbm
+matplotlib
