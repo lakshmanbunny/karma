@@ -1,0 +1,19 @@
+{
+    "fraud_threshold": 0.7,
+    "field_weights": {
+        "upvote_received": 0.5,
+        "comment": 0.3,
+        "post": 0.2
+    },
+    "exemptions": [
+        "verified_user_1",
+        "verified_user_2"
+    ],
+    "model_version": "1.0",
+    "config_version": "1.0",
+    "junk_comments": [
+        "Nice post bro!", "🔥🔥🔥", "Cool!", "Wow!", "Sub 4 sub?", "Check mine!", "Good", "Awesome bro",
+        "Follow me!", "Like my page", "Great stuff", "Amazing!", "Keep it up", "Nice one",
+        "Thanks", "Appreciate it", "Well done", "Nice work", "Good job"
+    ]
+}

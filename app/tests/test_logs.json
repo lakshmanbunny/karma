@@ -1,0 +1,40 @@
+[
+  {
+    "user_id": "stu_2293",
+    "karma_log": [
+      {
+        "activity_id": "act_101",
+        "type": "upvote_received",
+        "from_user": "stu_3012",
+        "timestamp": "2024-07-05T12:15:00Z",
+        "source": "post",
+        "post_id": "post_999"
+      },
+      {
+        "activity_id": "act_102",
+        "type": "comment",
+        "content": "Nice post bro!",
+        "timestamp": "2024-07-05T12:14:30Z"
+      }
+    ]
+  },
+  {
+    "user_id": "stu_3012",
+    "karma_log": [
+      {
+        "activity_id": "act_201",
+        "type": "upvote_received",
+        "from_user": "stu_2293",
+        "timestamp": "2024-07-05T12:16:00Z",
+        "source": "post",
+        "post_id": "post_999"
+      },
+      {
+        "activity_id": "act_202",
+        "type": "comment",
+        "content": "Thanks for the upvote!",
+        "timestamp": "2024-07-05T12:15:30Z"
+      }
+    ]
+  }
+]
